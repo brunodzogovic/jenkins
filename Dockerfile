@@ -25,10 +25,10 @@ COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
 
 # Copy the JCasC configuration file
-COPY jenkins.yaml /var/jenkins_home/casc_configs/jenkins.yaml
+COPY jenkins.yml /var/jenkins_home/casc_configs/jenkins.yml
 
 # Set the environment variable for JCasC configuration path
-ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
+ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yml
 
 # Expose Jenkins port and the slave agent port
 EXPOSE 8080 50000
