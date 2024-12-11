@@ -3,4 +3,4 @@ workflow-aggregator
 docker-workflow
 blueocean
 credentials-binding
-jenkins-configuration-as-code
+configuration-as-code
