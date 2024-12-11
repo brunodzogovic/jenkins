@@ -13,6 +13,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # Allow Jenkins to use the host Docker engine
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
 
 volumes:
   jenkins_home:
