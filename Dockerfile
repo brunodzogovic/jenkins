@@ -1,11 +1,32 @@
-FROM jenkins/jenkins:latest
+# Use the official Jenkins LTS image as the base image
+FROM jenkins/jenkins:lts
+
+# Switch to root user
 USER root
-RUN apt-get update && apt-get install -y apt-transport-https \
-ca-certificates curl make libc6 gnupg2 software-properties-common
-RUN mkdir -m 0755 -p /etc/apt/keyrings 
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-RUN echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-  tee /etc/apt/sources.list.d/docker.list > /dev/null
-RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Install Docker CLI inside the Jenkins container
+RUN apt-get update && \
+    apt-get install -y apt-transport-https ca-certificates curl software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Add the Jenkins user to the Docker group
+RUN groupadd -g 999 docker && \
+    usermod -aG docker jenkins
+
+# Set environment variables for Jenkins
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+
+# Install suggested Jenkins plugins
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+
+# Expose Jenkins port and the slave agent port
+EXPOSE 8080 50000
+
+# Set up initial admin user (optional, recommended for automation)
+COPY admin_user.groovy /usr/share/jenkins/ref/init.groovy.d/admin_user.groovy
+
